@@ -3,7 +3,7 @@ import numpy as np
 
 # Eller's algorithm
 def generate_maze(cols, rows):
-    counter=0
+    counter = 0
 
     maze = np.zeros((rows, cols), dtype=int)
     v_brdrs = np.zeros((rows, cols), dtype=int)
@@ -13,7 +13,7 @@ def generate_maze(cols, rows):
         return random.choice([0, 1])
     
     def update_counter():
-        global counter
+        nonlocal counter
         counter+=1
         return counter
 
@@ -30,11 +30,11 @@ def generate_maze(cols, rows):
                 row[i] = row[colnum]
 
     def vertical_walls(row, rownum):
-        for i in range(cols):
+         for i in range(cols-1):
             if choise() == 1:
-                v_brdrs[i][rownum] = 1
+                v_brdrs[rownum, i] = 1
             elif row[i] == row[i+1]:
-                v_brdrs[i][rownum] = 1
+                v_brdrs[rownum, i] = 1
             else:
                 set_concatenation(row, i)
 
@@ -42,38 +42,38 @@ def generate_maze(cols, rows):
         indices = [index for index, value in enumerate(row) if value == row[colnum] and index != colnum]
         # indices = np.where((row == row[colnum]) & (np.arange(len(row)) != colnum))[0]
 
-
-
         result = 0
-        # for i in indices:
-        #     result += h_brdrs[i][rownum]
-        result = np.sum(h_brdrs[indices, rownum])
+        result = np.sum(h_brdrs[rownum, indices]) # если сумма h_brdrs < количества элементов для множества, значить есть элементы без нижней границы
         
         return 1 if result < len(indices) else 0
 
 
     def horizontal_walls(row, rownum):
+        #test_choise = [1, 1, 1, 1, 1]
         for i in range(cols):
-            if choise() == 0:
+            if choise() == 0: #test_choise[i] == 0: # 
                 continue
             elif not_unique(row, i, rownum):
-                h_brdrs[i][rownum] = 1
+                h_brdrs[rownum, i] = 1
     
-    maze[0][:] = init_row()
+    maze[0, :] = init_row()
 
     for rownum, row in enumerate(maze):
-        if rownum == 1: # первая строка
+        if rownum == 0: # первая строка
             vertical_walls(row, rownum)
-            horizontal_walls(row, rownum)
+            horizontal_walls(row, rownum) 
 
         elif rownum == len(maze) - 1: #последняя строка
-            h_brdrs[:][rownum] = [1] * len(row)
-            for i in range(row):
+            h_brdrs[rownum, :] = [1] * len(row)
+            maze[rownum, :] = maze[rownum-1, :].copy() 
+            v_brdrs[rownum, :] = v_brdrs[rownum-1, :].copy() 
+            for i in range(rownum):
                 if row[i] != row[i+1]:
-                    v_brdrs[i][rownum] = 0
+                    v_brdrs[rownum, i] = 0
         else:
-            prev_row = h_brdrs[:][rownum-1].copy()
+            prev_row = h_brdrs[rownum-1, :].copy()
             indices = [index for index, value in enumerate(prev_row) if value == 1]
+            maze[rownum, :] = maze[rownum-1, :].copy() 
             for i in indices:
                 row[i] = update_counter()
             vertical_walls(row, rownum)

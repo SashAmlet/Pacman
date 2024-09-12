@@ -114,11 +114,6 @@ def get_maze(cols, rows):
                 maze[i+1,j] = num
             
 
-
-            
-
-    
-
     def add_borders(matrix):
         ones_columns = np.ones((matrix.shape[0], 1))
         zeros_columns = np.zeros((matrix.shape[0], 1))

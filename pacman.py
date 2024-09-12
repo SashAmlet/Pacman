@@ -30,6 +30,7 @@ direction_command = 0
 player_x = 0
 player_y = pixel_h
 player_speed = 2
+score = 0
 # R, L, U, D
 turns_allowed = [False, False, False, False]
 player_images = []
@@ -56,6 +57,10 @@ def draw_player():
         screen.blit(pygame.transform.rotate(player_images[counter // 5], 90), (player_x, player_y))
     elif direction == 3:
         screen.blit(pygame.transform.rotate(player_images[counter // 5], 270), (player_x, player_y))
+
+def draw_miscellaneous():
+    score_text = font.render(f'Score: {score}', True, 'white')
+    screen.blit(score_text, (10, HEIGHT - 30))
 
 def check_collisions(centerx, centery):
     # R, L, U, D
@@ -134,7 +139,16 @@ def move_player(play_x, play_y):
 
     return play_x, play_y
 
+def check_score(centerx, centery, score):
+    if pixel_w < centerx < WIDTH-pixel_w:
+        if level[centery // pixel_h][centerx // pixel_w] == 2:
+            score += 1
+            level[centery // pixel_h][centerx // pixel_w] = 0
+        elif level[centery // pixel_h][centerx // pixel_w] == 3:
+            score += 10
+            level[centery // pixel_h][centerx // pixel_w] = 0
 
+    return score
 
 run = True
 while run:
@@ -151,11 +165,14 @@ while run:
     screen.fill('black')
     draw_board()
     draw_player()
+    draw_miscellaneous()
+
     center_x = player_x + pixel_w // 2 + 1
     center_y = player_y + pixel_h // 2 + 1
-    # pygame.draw.circle(screen, 'white', (center_x, center_y), 2)
+
     turns_allowed = check_collisions(center_x, center_y)
     player_x, player_y = move_player(player_x, player_y)
+    score = check_score(center_x, center_y, score)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:

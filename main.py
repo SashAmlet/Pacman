@@ -29,7 +29,6 @@ def draw_player(coords):
     elif g.direction == 3:
         g.screen.blit(pygame.transform.rotate(g.player_images[counter // 5], 270), (x, y))
 
-
 def draw_miscellaneous():
     score_text = g.font.render(f'Score: {g.score}', True, 'white')
     g.screen.blit(score_text, (10, g.HEIGHT - 35))
@@ -51,16 +50,16 @@ def check_collisions(centerx, centery):
         # If we are going to the right, then obviously we can turn left (since that's where we are going). 
         # The check is needed to avoid sliding the walls when we are stuck to the right and quickly press the "left", "right" keys
         if g.direction == 0:
-            if g.level[centery // g.pixel_h][(center_x - g.pixel_w) // g.pixel_w] not in barriers:
+            if g.level[centery // g.pixel_h][(centerx - g.pixel_w) // g.pixel_w] not in barriers:
                 turns[1] = True
         if g.direction == 1:
-            if g.level[centery // g.pixel_h][(center_x + g.pixel_w) // g.pixel_w] not in barriers:
+            if g.level[centery // g.pixel_h][(centerx + g.pixel_w) // g.pixel_w] not in barriers:
                 turns[0] = True
         if g.direction == 2:
-            if g.level[(centery + g.pixel_h) // g.pixel_h][center_x // g.pixel_w] not in barriers:
+            if g.level[(centery + g.pixel_h) // g.pixel_h][centerx // g.pixel_w] not in barriers:
                 turns[3] = True
         if g.direction == 3:
-            if g.level[(centery - g.pixel_h) // g.pixel_h][center_x // g.pixel_w] not in barriers:
+            if g.level[(centery - g.pixel_h) // g.pixel_h][centerx // g.pixel_w] not in barriers:
                 turns[2] = True
 
         pixel_X_center = g.pixel_w // 2
@@ -141,6 +140,7 @@ run = True
 startup_counter = 0
 moving = False
 
+### MAIN ###
 while run:
     timer.tick(fps)
     # Timer part

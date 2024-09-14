@@ -84,6 +84,8 @@ def get_maze(cols, rows):
 
     cols = (cols - 4) // 2
     rows = (rows - 4) // 2
+
+
     
     v_brdrs, h_brdrs = generate_maze(cols, rows)
 
@@ -112,7 +114,33 @@ def get_maze(cols, rows):
                 maze[i,j+1] = num
             if h_brdrs[i//2, j//2] == 0:
                 maze[i+1,j] = num
-            
+
+    def insert_box(matrix):
+        rows, cols = matrix.shape
+        if rows < 6 or cols < 6:
+            raise ValueError("The matrix must be at least 6*6 in size.")
+
+        center_row = rows // 2
+        center_col = cols // 2
+
+        start_row = center_row - 3
+        start_col = center_col - 3
+
+        matrix[start_row:start_row + 6, start_col:start_col + 6] = 0
+
+        start_row = center_row - 2
+        start_col = center_col - 2
+
+        matrix[start_row:start_row+4, start_col] = 1
+        matrix[start_row:start_row+4, start_col+3] = 1
+        matrix[start_row, start_col:start_col+4] = 1
+        matrix[start_row+3, start_col:start_col+4] = 1
+        
+        start_row = center_row - 2
+        start_col = center_col - 1
+        matrix[start_row, start_col:start_col+2] = 4
+
+        return matrix
 
     def add_borders(matrix):
         ones_columns = np.ones((matrix.shape[0], 1))
@@ -126,7 +154,8 @@ def get_maze(cols, rows):
 
         return final_matrix
     
-    final_maze = add_borders(maze)
+    maze_w_box = insert_box(maze)
+    final_maze = add_borders(maze_w_box)
 
     print(v_brdrs)
     print()

@@ -128,24 +128,23 @@ class Ghost:
                rows, cols = len(g.level), len(g.level[0])
                return 0 <= x < rows and 0 <= y < cols and g.level[y][x] in {0, 2, 3, 4}
           
-          def bfs_shortest_path(start, end):
+          def bfs(start, end):
                # R, L, U, D
                directions = [(1, 0), (-1, 0), (0, -1), (0, 1)]
 
-
-               # Очередь для BFS: каждый элемент - это (x, y, путь_до_этой_точки)
+               # Queue for BFS: each element is (x, y, path_to_this_point)
                queue = deque([(start[0], start[1], [])])
-               visited = set()  # множество посещенных клеток
+               visited = set()  # set of visited cells
                visited.add((start[0], start[1]))
                
                while queue:
                     x, y, path = queue.popleft()
                     
-                    # Если достигли конечной точки, возвращаем путь
+                    # If we have reached the end point, we return the path
                     if (x, y) == end:
                          return path + [(x, y)]
                     
-                    # Проверяем всех соседей
+                    # Check all the neighbors
                     for dx, dy in directions:
                          nx, ny = x + dx, y + dy
                          
@@ -153,7 +152,7 @@ class Ghost:
                               queue.append((nx, ny, path + [(x, y)]))
                               visited.add((nx, ny))
                
-               return None  # Если пути нет
+               return None  # If there is no way
 
           # Coordinates of the center of the ghost and the player
           maze_g_coords = (self.center[0]//g.pixel_h, self.center[1]//g.pixel_w)
@@ -172,9 +171,9 @@ class Ghost:
                          break
 
           if g.powerup:
-               self.path = bfs_shortest_path(maze_g_coords, maze_r_coords)
+               self.path = bfs(maze_g_coords, maze_r_coords)
           else:
-               self.path = bfs_shortest_path(maze_g_coords, maze_p_coords)
+               self.path = bfs(maze_g_coords, maze_p_coords)
 
 
           if self.path is not None and len(self.path) > 1:

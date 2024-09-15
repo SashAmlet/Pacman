@@ -38,12 +38,12 @@ def generate_maze(cols, rows):
             else:
                 set_concatenation(row, i)
 
-    def not_unique(row, colnum, rownum): # проверка - есть ли в множестве элемент без нижней границы кроме данного.
+    def not_unique(row, colnum, rownum): # check - whether there is an element in the set without a lower bound except for the given one.
         indices = [index for index, value in enumerate(row) if value == row[colnum] and index != colnum]
         # indices = np.where((row == row[colnum]) & (np.arange(len(row)) != colnum))[0]
 
         result = 0
-        result = np.sum(h_brdrs[rownum, indices]) # если сумма h_brdrs < количества элементов для множества, значить есть элементы без нижней границы
+        result = np.sum(h_brdrs[rownum, indices]) # if the sum of h_brdrs < the number of elements of the set, then there are elements without a lower bound
         
         return 1 if result < len(indices) else 0
 
@@ -58,11 +58,11 @@ def generate_maze(cols, rows):
     maze[0, :] = init_row()
 
     for rownum, row in enumerate(maze):
-        if rownum == 0: # первая строка
+        if rownum == 0: # first line
             vertical_walls(row, rownum)
             horizontal_walls(row, rownum) 
 
-        elif rownum == len(maze) - 1: #последняя строка
+        elif rownum == len(maze) - 1: # last line
             h_brdrs[rownum, :] = [0] * len(row)
             maze[rownum, :] = maze[rownum-1, :].copy() 
             v_brdrs[rownum, :] = v_brdrs[rownum-1, :].copy() 

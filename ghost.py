@@ -1,6 +1,7 @@
 import config as g
 import pygame
 from collections import deque
+import random
 
 pygame.init()
 
@@ -15,13 +16,14 @@ class Ghost:
           self.direction = direction
           self.dead = dead
           self.in_box = box   
-          # self.turns, self.in_box = self.check_collisions()
+          self.turns, self.in_box = self.check_collisions()
           self.rect = self.draw()
 
-          self.move()
+          # self.move_chaser()
+          self.move_patrol()
           
-          if self.path is not None:
-               self.draw_path()
+          # if self.path is not None:
+          #      self.draw_path()
 
      def draw(self):
           #print(g.powerup)
@@ -45,6 +47,7 @@ class Ghost:
           turns = [False, False, False, False]
           centerx = self.center[0]
           centery = self.center[1]
+          boarders = [1, 5]
           # In this case he is allowed to be in the box
           additional_condition = self.in_box or self.dead
 
@@ -53,19 +56,19 @@ class Ghost:
                # The check is needed to avoid sliding the walls when we are stuck to the right and quickly press the "left", "right" keys
                if self.direction == 0:
                     index_value = g.level[centery // g.pixel_h][(centerx - g.pixel_w) // g.pixel_w]
-                    if  index_value!= 1 or index_value == 4 and additional_condition:
+                    if  index_value not in boarders or index_value == 4 and additional_condition:
                               turns[1] = True
                if g.direction == 1:
                     index_value = g.level[centery // g.pixel_h][(centerx + g.pixel_w) // g.pixel_w]
-                    if index_value != 1 or index_value == 4 and additional_condition:
+                    if index_value not in boarders or index_value == 4 and additional_condition:
                               turns[0] = True
                if g.direction == 2:
                     index_value = g.level[(centery + g.pixel_h) // g.pixel_h][centerx // g.pixel_w]
-                    if index_value != 1 or index_value == 4 and additional_condition:
+                    if index_value not in boarders or index_value == 4 and additional_condition:
                          turns[3] = True
                if g.direction == 3:
                     index_value = g.level[(centery - g.pixel_h) // g.pixel_h][centerx // g.pixel_w]
-                    if index_value != 1 or index_value == 4 and additional_condition:
+                    if index_value not in boarders or index_value == 4 and additional_condition:
                          turns[2] = True
 
                pixel_X_center = g.pixel_w // 2
@@ -76,19 +79,19 @@ class Ghost:
                     # Can I continue moving in the same direction?
                     if pixel_X_center - 3 <= centerx % g.pixel_w <= pixel_X_center + 3: # if the player is in the center of the square relative to the X axis
                          index_value = g.level[(centery + g.pixel_h//2) // g.pixel_h][centerx // g.pixel_w]
-                         if index_value != 1  or index_value == 4 and additional_condition:
+                         if index_value not in boarders  or index_value == 4 and additional_condition:
                               turns[3] = True
                          index_value = g.level[(centery - g.pixel_h//2) // g.pixel_h][centerx // g.pixel_w]
-                         if index_value != 1 or index_value == 4 and additional_condition:
+                         if index_value not in boarders or index_value == 4 and additional_condition:
                               turns[2] = True
 
                     # Can I turn Left or Right?
                     if pixel_Y_center - 3 <= centery % g.pixel_h <= pixel_Y_center + 3: # if the player is in the center of the square relative to the Y axis
                          index_value = g.level[centery // g.pixel_h][(centerx - g.pixel_w//2) // g.pixel_w]
-                         if index_value != 1 or index_value == 4 and additional_condition:
+                         if index_value not in boarders or index_value == 4 and additional_condition:
                               turns[1] = True
                          index_value = g.level[centery // g.pixel_h][(centerx + g.pixel_w//2) // g.pixel_w]
-                         if index_value != 1 or index_value == 4 and additional_condition:
+                         if index_value not in boarders or index_value == 4 and additional_condition:
                               turns[0] = True
 
                
@@ -97,19 +100,19 @@ class Ghost:
                     # Can I continue moving in the same direction?
                     if pixel_Y_center - 3 <= centery % g.pixel_h <= pixel_Y_center + 3: # if the player is in the center of the square relative to the Y axis
                          index_value = g.level[centery // g.pixel_h][(centerx + g.pixel_w//2) // g.pixel_w]
-                         if index_value != 1 or index_value == 4 and additional_condition:
+                         if index_value not in boarders or index_value == 4 and additional_condition:
                               turns[0] = True
                          index_value = g.level[centery // g.pixel_h][(centerx - g.pixel_w//2) // g.pixel_w]
-                         if index_value != 1 or index_value == 4 and additional_condition:
+                         if index_value not in boarders or index_value == 4 and additional_condition:
                               turns[1] = True
 
                     # Can I turn Up or Down?
                     if pixel_X_center - 3 <= centerx % g.pixel_w <= pixel_X_center + 3: # if the player is in the center of the square relative to the X axis
                          index_value = g.level[(centery - g.pixel_h//2) // g.pixel_h][centerx // g.pixel_w]
-                         if index_value != 1 or index_value == 4 and additional_condition:
+                         if index_value not in boarders or index_value == 4 and additional_condition:
                               turns[2] = True
                          index_value = g.level[(centery + g.pixel_h//2) // g.pixel_h][centerx // g.pixel_w]
-                         if index_value != 1 or index_value == 4 and additional_condition:
+                         if index_value not in boarders or index_value == 4 and additional_condition:
                               turns[3] = True
           else:
                turns[0] = turns[1] = True
@@ -125,7 +128,7 @@ class Ghost:
      
 
 
-     def move(self):
+     def move_chaser(self):
           # R, L, U, D, LU, RU, LD, RD
           full_directions = [(1, 0), (-1, 0), (0, -1), (0, 1), (-1, -1), (1, -1), (-1, 1), (1, 1)]
 
@@ -209,5 +212,42 @@ class Ghost:
                elif g.ghosts_direction[self.id] == 3:
                     g.ghosts_coords[self.id][1] += g.ghost_speed
      
+     def move_patrol(self):
+
+          pixel_X_center = g.pixel_w // 2
+          pixel_Y_center = g.pixel_h // 2
+
+          def random_true_index(turns):
+               true_indices = [index for index, value in enumerate(turns) if value]
+               if not true_indices:
+                    return None  # If there are no True values, return None
+               return random.choice(true_indices)
+
+          def decision(probability):
+               if 1 <= random.randint(1, 100) <= probability:
+                    return True
+               else:
+                    return False
+
+          # I change direction only if the ghost is in the middle of the cell and 
+          # either there is a wall in front of it or a decision is made to turn.
+          if (pixel_X_center - 3 <= self.center[0] % g.pixel_w <= pixel_X_center + 3) and \
+               (pixel_Y_center - 3 <= self.center[1] % g.pixel_h <= pixel_Y_center + 3) and \
+                    (self.turns[g.ghosts_direction[self.id]] == False or decision(10)):
+
+               g.ghosts_direction[self.id] = random_true_index(self.turns)
+               
+
+
+          if g.moving == True:
+               if g.ghosts_direction[self.id] == 0:
+                    g.ghosts_coords[self.id][0] += g.ghost_speed
+               elif g.ghosts_direction[self.id] == 1:
+                    g.ghosts_coords[self.id][0] -= g.ghost_speed
+               elif g.ghosts_direction[self.id] == 2:
+                    g.ghosts_coords[self.id][1] -= g.ghost_speed
+               elif g.ghosts_direction[self.id] == 3:
+                    g.ghosts_coords[self.id][1] += g.ghost_speed
+
      
      

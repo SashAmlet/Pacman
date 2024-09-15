@@ -82,6 +82,9 @@ def generate_maze(cols, rows):
 
 def get_maze(cols, rows):
 
+    COLS = cols
+    ROWS = rows
+
     cols = (cols - 4) // 2
     rows = (rows - 4) // 2
 
@@ -152,10 +155,17 @@ def get_maze(cols, rows):
         new_matrix = np.hstack((ones_columns, zeros_columns, matrix, zeros_columns, ones_columns))
         final_matrix = np.vstack((ones_row, zeros_row, new_matrix, zeros_row, ones_row))
 
+        final_matrix[1][0] = 5
+        final_matrix[1][COLS-1] = 5
+        final_matrix[ROWS-2][0] = 5
+        final_matrix[ROWS-2][COLS-1] = 5
+
         return final_matrix
     
     maze_w_box = insert_box(maze)
     final_maze = add_borders(maze_w_box)
+
+
 
     print(v_brdrs)
     print()

@@ -177,16 +177,27 @@ class Ghost:
                self.path = bfs_shortest_path(maze_g_coords, maze_p_coords)
 
 
-          # R, L, U, D
-          direction = (self.path[1][0] - g.ghosts_coords[self.id][0]//g.pixel_w, self.path[1][1] - g.ghosts_coords[self.id][1]//g.pixel_h)
-          if direction == (1, 0):
-               g.ghosts_coords[self.id][0] += g.ghost_speed
-          elif direction == (-1, 0):
-               g.ghosts_coords[self.id][0] -= g.ghost_speed
-          elif direction == (0, -1):
-               g.ghosts_coords[self.id][1] -= g.ghost_speed
-          elif direction == (0, 1):
-               g.ghosts_coords[self.id][1] += g.ghost_speed
+          if self.path is not None and len(self.path) > 1:
+               # R, L, U, D 
+               direction = (self.path[1][0] - g.ghosts_coords[self.id][0]//g.pixel_w, self.path[1][1] - g.ghosts_coords[self.id][1]//g.pixel_h)
+               if direction == (1, 0):
+                    g.ghosts_direction[self.id] = 0
+               elif direction == (-1, 0):
+                    g.ghosts_direction[self.id] = 1
+               elif direction == (0, -1):
+                    g.ghosts_direction[self.id] = 2
+               elif direction == (0, 1):
+                    g.ghosts_direction[self.id] = 3
+
+          if g.moving == True:
+               if g.ghosts_direction[self.id] == 0:
+                    g.ghosts_coords[self.id][0] += g.ghost_speed
+               elif g.ghosts_direction[self.id] == 1:
+                    g.ghosts_coords[self.id][0] -= g.ghost_speed
+               elif g.ghosts_direction[self.id] == 2:
+                    g.ghosts_coords[self.id][1] -= g.ghost_speed
+               elif g.ghosts_direction[self.id] == 3:
+                    g.ghosts_coords[self.id][1] += g.ghost_speed
      
      def draw_path(self):
           for coord in self.path:

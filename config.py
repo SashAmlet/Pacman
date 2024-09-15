@@ -66,3 +66,4 @@ for i in range(0, 6):
 powerup = False
 power_counter = 0
 eaten_ghosts = [False, False, False, False]
+moving = False

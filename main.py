@@ -138,7 +138,6 @@ flicker = False
 timer = pygame.time.Clock()
 run = True
 startup_counter = 0
-moving = False
 
 ### MAIN ###
 while run:
@@ -155,7 +154,7 @@ while run:
     if startup_counter < 180: # For the first 3 seconds of the game, no one can move.
         startup_counter += 1
     else:
-        moving = True
+        g.moving = True
     
     if g.powerup and g.power_counter < 600:
         g.power_counter += 1
@@ -178,7 +177,7 @@ while run:
     center_y = g.player_coords[1] + g.pixel_h // 2 + 1
 
     g.turns_allowed = check_collisions(center_x, center_y)
-    if moving:
+    if g.moving:
         g.player_coords = move_player(g.player_coords)
     g.score, g.powerup, g.power_counter, g.eaten_ghosts = check_score(center_x, center_y, g.level, g.score, g.powerup, g.power_counter, g.eaten_ghosts)
 

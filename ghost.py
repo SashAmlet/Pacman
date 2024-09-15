@@ -1,5 +1,6 @@
 import config as g
 import pygame
+from collections import deque
 
 pygame.init()
 
@@ -14,11 +15,16 @@ class Ghost:
           self.direction = direction
           self.dead = dead
           self.in_box = box   
-          self.turns, self.in_box = self.check_collisions()
+          # self.turns, self.in_box = self.check_collisions()
           self.rect = self.draw()
 
+          self.move()
+          
+          if self.path is not None:
+               self.draw_path()
+
      def draw(self):
-          print(g.powerup)
+          #print(g.powerup)
           if not self.dead and ((not g.powerup) or (g.powerup and g.eaten_ghosts[self.id])):
                g.screen.blit(self.img, (self.coords[0], self.coords[1]))
           elif g.powerup and not self.dead and not g.eaten_ghosts[self.id]: # powerup
@@ -111,3 +117,79 @@ class Ghost:
                self.in_box = False
 
           return turns, self.in_box
+     
+
+
+     def move(self):
+          # R, L, U, D, LU, RU, LD, RD
+          full_directions = [(1, 0), (-1, 0), (0, -1), (0, 1), (-1, -1), (1, -1), (-1, 1), (1, 1)]
+
+          def is_valid_move(x, y):
+               rows, cols = len(g.level), len(g.level[0])
+               return 0 <= x < rows and 0 <= y < cols and g.level[y][x] in {0, 2, 3, 4}
+          
+          def bfs_shortest_path(start, end):
+               # R, L, U, D
+               directions = [(1, 0), (-1, 0), (0, -1), (0, 1)]
+
+
+               # Очередь для BFS: каждый элемент - это (x, y, путь_до_этой_точки)
+               queue = deque([(start[0], start[1], [])])
+               visited = set()  # множество посещенных клеток
+               visited.add((start[0], start[1]))
+               
+               while queue:
+                    x, y, path = queue.popleft()
+                    
+                    # Если достигли конечной точки, возвращаем путь
+                    if (x, y) == end:
+                         return path + [(x, y)]
+                    
+                    # Проверяем всех соседей
+                    for dx, dy in directions:
+                         nx, ny = x + dx, y + dy
+                         
+                         if is_valid_move(nx, ny) and (nx, ny) not in visited:
+                              queue.append((nx, ny, path + [(x, y)]))
+                              visited.add((nx, ny))
+               
+               return None  # Если пути нет
+
+          # Coordinates of the center of the ghost and the player
+          maze_g_coords = (self.center[0]//g.pixel_h, self.center[1]//g.pixel_w)
+          maze_p_coords = ((g.player_coords[0] + g.pixel_h // 2 + 1)//g.pixel_h, (g.player_coords[1] + g.pixel_w // 2 + 1)//g.pixel_w)
+          maze_r_coords = (0, 0)
+
+          x, y = g.COLS-maze_p_coords[0]-1, g.ROWS-maze_p_coords[1]-1
+          if is_valid_move(x, y):
+               maze_r_coords = (x, y)
+          else:
+               for dx, dy in full_directions:
+                    nx, ny = x + dx, y + dy
+                         
+                    if is_valid_move(nx, ny):
+                         maze_r_coords = (nx, ny)
+                         break
+
+          if g.powerup:
+               self.path = bfs_shortest_path(maze_g_coords, maze_r_coords)
+          else:
+               self.path = bfs_shortest_path(maze_g_coords, maze_p_coords)
+
+
+          # R, L, U, D
+          direction = (self.path[1][0] - g.ghosts_coords[self.id][0]//g.pixel_w, self.path[1][1] - g.ghosts_coords[self.id][1]//g.pixel_h)
+          if direction == (1, 0):
+               g.ghosts_coords[self.id][0] += g.ghost_speed
+          elif direction == (-1, 0):
+               g.ghosts_coords[self.id][0] -= g.ghost_speed
+          elif direction == (0, -1):
+               g.ghosts_coords[self.id][1] -= g.ghost_speed
+          elif direction == (0, 1):
+               g.ghosts_coords[self.id][1] += g.ghost_speed
+     
+     def draw_path(self):
+          for coord in self.path:
+               pygame.draw.circle(g.screen, 'red', (coord[0] * g.pixel_w + (0.5 * g.pixel_w), coord[1] * g.pixel_h + (0.5 * g.pixel_h)), 2)
+
+     

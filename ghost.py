@@ -35,6 +35,11 @@ class Ghost:
           ghost_rect = pygame.rect.Rect((self.center[0] - 18, self.center[1] - 18), (36, 36))
           return ghost_rect
                
+     def draw_path(self):
+          for coord in self.path:
+               pygame.draw.circle(g.screen, 'red', (coord[0] * g.pixel_w + (0.5 * g.pixel_w), coord[1] * g.pixel_h + (0.5 * g.pixel_h)), 3)
+
+
      def check_collisions(self):
           # R, L, U, D
           turns = [False, False, False, False]
@@ -111,7 +116,7 @@ class Ghost:
 
           # Is the ghost still in the box?
           if (g.ROWS // 2 - 1)*g.pixel_w < self.coords[0] < (g.ROWS // 2)*g.pixel_w and \
-               (g.COLS // 2 - 1)*g.pixel_h < self.y_pos < (g.COLS // 2)*g.pixel_h:
+               (g.COLS // 2 - 1)*g.pixel_h < self.coords[1] < (g.COLS // 2)*g.pixel_h:
                self.in_box = True
           else:
                self.in_box = False
@@ -175,8 +180,14 @@ class Ghost:
           else:
                self.path = bfs(maze_g_coords, maze_p_coords)
 
+          pixel_X_center = g.pixel_w // 2
+          pixel_Y_center = g.pixel_h // 2
 
-          if self.path is not None and len(self.path) > 1:
+          # I change direction only if there is a path and a ghost in the middle of the cell
+          if self.path is not None and len(self.path) > 1 and \
+               (pixel_X_center - 3 <= self.center[0] % g.pixel_w <= pixel_X_center + 3) and \
+                    (pixel_Y_center - 3 <= self.center[1] % g.pixel_h <= pixel_Y_center + 3):
+               
                # R, L, U, D 
                direction = (self.path[1][0] - g.ghosts_coords[self.id][0]//g.pixel_w, self.path[1][1] - g.ghosts_coords[self.id][1]//g.pixel_h)
                if direction == (1, 0):
@@ -198,8 +209,5 @@ class Ghost:
                elif g.ghosts_direction[self.id] == 3:
                     g.ghosts_coords[self.id][1] += g.ghost_speed
      
-     def draw_path(self):
-          for coord in self.path:
-               pygame.draw.circle(g.screen, 'red', (coord[0] * g.pixel_w + (0.5 * g.pixel_w), coord[1] * g.pixel_h + (0.5 * g.pixel_h)), 2)
-
+     
      

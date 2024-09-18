@@ -18,11 +18,7 @@ class Ghost:
           self.turns, self.in_box = self.check_collisions()
           self.rect = self.draw()
 
-          # self.move_chaser()
-          # self.move_patrol()
           self.move()
-          # if self.path is not None:
-          #      self.draw_path()
 
      def draw(self):
           #print(g.powerup)

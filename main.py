@@ -170,10 +170,10 @@ while run:
     g.screen.fill('black')
     draw_board(g.level)
     draw_player(g.player_coords)
-    red_ghost   = Ghost(0, g.ghosts_coords[0], g.ghosts_targets[0], g.ghost_speed, g.ghosts_images[0], g.ghosts_direction[0], g.ghosts_dead[0], g.ghosts_box[0])
-    blue_ghost  = Ghost(1, g.ghosts_coords[1], g.ghosts_targets[1], g.ghost_speed, g.ghosts_images[1], g.ghosts_direction[1], g.ghosts_dead[1], g.ghosts_box[1])
-    orange_ghost= Ghost(2, g.ghosts_coords[2], g.ghosts_targets[2], g.ghost_speed, g.ghosts_images[2], g.ghosts_direction[2], g.ghosts_dead[2], g.ghosts_box[2])
-    pink_ghost  = Ghost(3, g.ghosts_coords[3], g.ghosts_targets[3], g.ghost_speed, g.ghosts_images[3], g.ghosts_direction[3], g.ghosts_dead[3], g.ghosts_box[3])
+    red_ghost   = Ghost(0, g.ghosts_coords[0], g.ghost_speed, g.ghosts_images[0], g.ghosts_direction[0], g.ghosts_dead[0], g.ghosts_box[0])
+    blue_ghost  = Ghost(1, g.ghosts_coords[1], g.ghost_speed, g.ghosts_images[1], g.ghosts_direction[1], g.ghosts_dead[1], g.ghosts_box[1])
+    orange_ghost= Ghost(2, g.ghosts_coords[2], g.ghost_speed, g.ghosts_images[2], g.ghosts_direction[2], g.ghosts_dead[2], g.ghosts_box[2])
+    pink_ghost  = Ghost(3, g.ghosts_coords[3], g.ghost_speed, g.ghosts_images[3], g.ghosts_direction[3], g.ghosts_dead[3], g.ghosts_box[3])
     draw_miscellaneous()
 
     center_x = g.player_coords[0] + g.pixel_w // 2 + 1

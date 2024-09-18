@@ -48,7 +48,6 @@ ghosts_coords = [
     [(ROWS // 2-1)*pixel_w, (COLS // 2-1)*pixel_h]
 ]
 ghosts_direction = [2, 2, 2, 2]
-ghosts_targets = [player_coords, player_coords, player_coords, player_coords]
 ghosts_dead = [False, False, False, False]
 ghosts_box = [True, True, True, True]
 ghost_speed = 2
@@ -69,3 +68,5 @@ eaten_ghosts = [False, False, False, False]
 moving = False
 
 he_sees_you = [0, 0, 0, 0]
+
+show_path = True

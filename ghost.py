@@ -6,11 +6,10 @@ import random
 pygame.init()
 
 class Ghost:
-     def __init__(self, id, coords, target, speed, img, direction, dead, box):
+     def __init__(self, id, coords, speed, img, direction, dead, box):
           self.id = id
           self.coords = coords
           self.center = [coords[0] + g.pixel_w // 2 + 1, coords[1] + g.pixel_h // 2 + 1]
-          self.target = target
           self.speed = speed
           self.img = img
           self.direction = direction
@@ -47,9 +46,12 @@ class Ghost:
           turns = [False, False, False, False]
           centerx = self.center[0]
           centery = self.center[1]
-          boarders = [1, 5]
+          boarders = [1, 5, 4]
+
+               
           # In this case he is allowed to be in the box
           additional_condition = self.in_box or self.dead
+          # print(self.in_box, ' ', self.dead, ' ', additional_condition)
 
           if g.pixel_w < centerx < g.WIDTH-g.pixel_w:
                # If we are going to the right, then obviously we can turn left (since that's where we are going). 
@@ -117,16 +119,18 @@ class Ghost:
           else:
                turns[0] = turns[1] = True
 
-          # Is the ghost still in the box?
-          if (g.ROWS // 2 - 1)*g.pixel_w < self.coords[0] < (g.ROWS // 2)*g.pixel_w and \
-               (g.COLS // 2 - 1)*g.pixel_h < self.coords[1] < (g.COLS // 2)*g.pixel_h:
-               self.in_box = True
-          else:
-               self.in_box = False
 
-          return turns, self.in_box
+          # Is the ghost still in the box?
+          if (g.ROWS // 2 - 2)*g.pixel_h < self.coords[0] < (g.ROWS // 2 + 1)*g.pixel_h and \
+               (g.COLS // 2 - 2)*g.pixel_w < self.coords[1] < (g.COLS // 2 + 1)*g.pixel_w:
+               g.ghosts_box[self.id] = True
+          else:
+               g.ghosts_box[self.id] = False
+
+
+          return turns, g.ghosts_box[self.id]
      
-# добавить в move_chaser check_coallisions
+     
 
      def random_true_index(self):
           true_indices = [index for index, value in enumerate(self.turns) if value]
@@ -322,5 +326,5 @@ class Ghost:
                self.move_patrol()
           else:
                self.move_chaser()
-               if self.path is not None:
+               if self.path is not None and g.show_path:
                     self.draw_path()

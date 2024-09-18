@@ -20,8 +20,8 @@ class Ghost:
           self.rect = self.draw()
 
           # self.move_chaser()
-          self.move_patrol()
-          
+          # self.move_patrol()
+          self.move()
           # if self.path is not None:
           #      self.draw_path()
 
@@ -126,7 +126,13 @@ class Ghost:
 
           return turns, self.in_box
      
+# добавить в move_chaser check_coallisions
 
+     def random_true_index(self):
+          true_indices = [index for index, value in enumerate(self.turns) if value]
+          if not true_indices:
+               return None  # If there are no True values, return None
+          return random.choice(true_indices)
 
      def move_chaser(self):
           # R, L, U, D, LU, RU, LD, RD
@@ -202,7 +208,13 @@ class Ghost:
                elif direction == (0, 1):
                     g.ghosts_direction[self.id] = 3
 
+
           if g.moving == True:
+               # print('Direction: ', g.ghosts_direction[self.id])
+               # print('Allowed turns:', self.turns)
+               if not self.turns[g.ghosts_direction[self.id]]: # If it is not possible to travel in this direction, then we choose a new permitted direction
+                    g.ghosts_direction[self.id] = self.random_true_index()
+                    
                if g.ghosts_direction[self.id] == 0:
                     g.ghosts_coords[self.id][0] += g.ghost_speed
                elif g.ghosts_direction[self.id] == 1:
@@ -211,17 +223,14 @@ class Ghost:
                     g.ghosts_coords[self.id][1] -= g.ghost_speed
                elif g.ghosts_direction[self.id] == 3:
                     g.ghosts_coords[self.id][1] += g.ghost_speed
+
+
      
      def move_patrol(self):
 
           pixel_X_center = g.pixel_w // 2
           pixel_Y_center = g.pixel_h // 2
-
-          def random_true_index(turns):
-               true_indices = [index for index, value in enumerate(turns) if value]
-               if not true_indices:
-                    return None  # If there are no True values, return None
-               return random.choice(true_indices)
+          
 
           def decision(probability):
                if 1 <= random.randint(1, 100) <= probability:
@@ -235,7 +244,7 @@ class Ghost:
                (pixel_Y_center - 3 <= self.center[1] % g.pixel_h <= pixel_Y_center + 3) and \
                     (self.turns[g.ghosts_direction[self.id]] == False or decision(10)):
 
-               g.ghosts_direction[self.id] = random_true_index(self.turns)
+               g.ghosts_direction[self.id] = self.random_true_index()
                
 
 
@@ -250,4 +259,68 @@ class Ghost:
                     g.ghosts_coords[self.id][1] += g.ghost_speed
 
      
-     
+     def move(self):
+          def bresenham_line(coords1, coords2):
+               """Функция для построения линии по алгоритму Брезенхэма между точками (x1, y1) и (x2, y2)."""
+               x1 = coords1[0]
+               y1 = coords1[1]
+               x2 = coords2[0]
+               y2 = coords2[1]
+               
+               points = []
+               dx = abs(x2 - x1)
+               dy = abs(y2 - y1)
+               sx = 1 if x1 < x2 else -1
+               sy = 1 if y1 < y2 else -1
+               err = dx - dy
+               
+               while True:
+                    points.append((x1, y1))
+                    if x1 == x2 and y1 == y2:
+                         break
+                    e2 = 2 * err
+                    if e2 > -dy:
+                         err -= dy
+                         x1 += sx
+                    if e2 < dx:
+                         err += dx
+                         y1 += sy
+               
+               return points
+
+          def can_see(matrix, coords1, coords2):
+               """Проверяет, можно ли увидеть объект на координатах (x1, y1) с позиции (x2, y2) в матрице."""
+               
+               x1 = coords1[0]
+               y1 = coords1[1]
+               x2 = coords2[0]
+               y2 = coords2[1]
+
+               line_of_sight = bresenham_line(coords1, coords2)
+               
+               for (x, y) in line_of_sight:
+                    # Проверяем, является ли клетка стеной
+                    if matrix[y][x] == 1:
+                         return False  # Видимость блокирована стеной
+               
+               return True  # Если нет стен на пути, объект виден
+          
+          maze_g_coords = (self.center[0]//g.pixel_h, self.center[1]//g.pixel_w)
+          maze_p_coords = ((g.player_coords[0] + g.pixel_h // 2 + 1)//g.pixel_h, (g.player_coords[1] + g.pixel_w // 2 + 1)//g.pixel_w)
+          
+          if 0 <= maze_p_coords[0] < g.ROWS and 0 <= maze_p_coords[1] < g.COLS:
+               see = can_see(g.level, maze_g_coords, maze_p_coords)
+          else:
+               see = False
+
+          if see:
+               g.he_sees_you = 3*60
+          elif g.he_sees_you > 0:
+               g.he_sees_you -= 1
+
+          if g.he_sees_you == 0:
+               self.move_patrol()
+          else:
+               self.move_chaser()
+               if self.path is not None:
+                    self.draw_path()

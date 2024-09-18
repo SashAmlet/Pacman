@@ -33,6 +33,9 @@ def draw_miscellaneous():
     score_text = g.font.render(f'Score: {g.score}', True, 'white')
     g.screen.blit(score_text, (10, g.HEIGHT - 35))
 
+    chaser_text = g.font.render(f'{g.he_sees_you//60}', True, 'white')
+    g.screen.blit(chaser_text, (200, g.HEIGHT - 35))
+
     if g.powerup:
         pygame.draw.circle(g.screen, 'blue', (140, g.HEIGHT - 25), g.pixel_h//3)
 

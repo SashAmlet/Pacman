@@ -1,3 +1,5 @@
+### ПОИСК В ШИРИНУ ###
+
 from collections import deque
 import pygame
 import config as g

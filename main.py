@@ -19,6 +19,9 @@ def draw_board(lvl):
 def draw_player(coords):
     x = coords[0]
     y = coords[1]
+
+    center_x = coords[0] + g.pixel_w // 2 + 1
+    center_y = coords[1] + g.pixel_h // 2 + 1
     # 0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
     if g.direction == 0:
         g.screen.blit(g.player_images[counter // 5], (x, y))
@@ -28,6 +31,11 @@ def draw_player(coords):
         g.screen.blit(pygame.transform.rotate(g.player_images[counter // 5], 90), (x, y))
     elif g.direction == 3:
         g.screen.blit(pygame.transform.rotate(g.player_images[counter // 5], 270), (x, y))
+    
+    player_circle = pygame.draw.circle(g.screen, 'purple', (center_x, center_y), g.pixel_w//2, 2)
+    return player_circle
+
+    
 
 def draw_miscellaneous():
     score_text = g.font.render(f'Score: {g.score}', True, 'white')
@@ -107,6 +115,46 @@ def check_collisions(centerx, centery):
 
     return turns
 
+def check_collisions_width_ghosts(centerx, centery, player_circle, red_ghost, blue_ghost, orange_ghost, pink_ghost):
+
+    collisions = [player_circle.colliderect(red_ghost.rect) and not red_ghost.dead, 
+                  player_circle.colliderect(blue_ghost.rect) and not blue_ghost.dead, 
+                  player_circle.colliderect(orange_ghost.rect) and not orange_ghost.dead, 
+                  player_circle.colliderect(pink_ghost.rect) and not pink_ghost.dead]
+    
+    if collisions.count(1) > 0:
+        if not g.powerup:
+            if g.lives > -1:
+                g.lives -= 1                
+                g.p_moving = False
+                g.startup_counter = 0
+
+                # Player Reboot
+                g.direction = 0
+                g.direction_command = 0
+                g.player_coords = [0, g.pixel_h]
+                # R, L, U, D
+                g.turns_allowed = [False, False, False, False]        
+                g.gh_moving = [False, False, False, False]   
+
+                # Ghosts Reboot
+                g.ghosts_coords = [
+                    [(g.ROWS // 2)*g.pixel_w, (g.COLS // 2)*g.pixel_h],
+                    [(g.ROWS // 2-1)*g.pixel_w, (g.COLS // 2)*g.pixel_h],
+                    [(g.ROWS // 2)*g.pixel_w, (g.COLS // 2-1)*g.pixel_h],
+                    [(g.ROWS // 2-1)*g.pixel_w, (g.COLS // 2-1)*g.pixel_h]
+                ]
+                g.ghosts_direction = [2, 2, 2, 2]
+                g.ghosts_dead = [False, False, False, False]
+                g.ghosts_box = [True, True, True, True]
+            else:
+                pygame.quit()
+        else:
+            # g.ghosts_dead = collisions
+            for i, col  in enumerate(collisions):
+                if not g.ghosts_dead[i] and col:
+                    g.ghosts_dead[i] = True
+
 def move_player(coords):
     # R, L, U, D
     if g.direction == 0 and g.turns_allowed[0]:
@@ -140,7 +188,7 @@ fps = 60
 flicker = False
 timer = pygame.time.Clock()
 run = True
-startup_counter = 0
+
 
 ### MAIN ###
 while run:
@@ -154,10 +202,11 @@ while run:
         counter = 0
         flicker = True
 
-    if startup_counter < 180: # For the first 3 seconds of the game, no one can move.
-        startup_counter += 1
+    if g.startup_counter < 180: # For the first 3 seconds of the game, no one can move.
+        g.startup_counter += 1
     else:
-        g.moving = True
+        g.p_moving = True
+        # g.gh_moving = [True, True, True, True]
     
     if g.powerup and g.power_counter < 600:
         g.power_counter += 1
@@ -166,10 +215,18 @@ while run:
         g.power_counter = 0
         g.eaten_ghosts = [False, False, False, False]
 
+    for i, g_time in enumerate(g.gh_stop_timer):
+        if g_time > 0:
+            g.gh_moving[i] = False
+            g.gh_stop_timer[i] -= 1
+        elif g.startup_counter >= 180:
+            g.gh_moving[i] = True
+    # print(g.gh_moving)
     ##
     g.screen.fill('black')
     draw_board(g.level)
-    draw_player(g.player_coords)
+    player_circle = draw_player(g.player_coords)
+    
     red_ghost   = Ghost(0, g.ghosts_coords[0], g.ghost_speed, g.ghosts_images[0], g.ghosts_direction[0], g.ghosts_dead[0], g.ghosts_box[0])
     blue_ghost  = Ghost(1, g.ghosts_coords[1], g.ghost_speed, g.ghosts_images[1], g.ghosts_direction[1], g.ghosts_dead[1], g.ghosts_box[1])
     orange_ghost= Ghost(2, g.ghosts_coords[2], g.ghost_speed, g.ghosts_images[2], g.ghosts_direction[2], g.ghosts_dead[2], g.ghosts_box[2])
@@ -180,9 +237,12 @@ while run:
     center_y = g.player_coords[1] + g.pixel_h // 2 + 1
 
     g.turns_allowed = check_collisions(center_x, center_y)
-    if g.moving:
+    if g.p_moving:
         g.player_coords = move_player(g.player_coords)
     g.score, g.powerup, g.power_counter, g.eaten_ghosts = check_score(center_x, center_y, g.level, g.score, g.powerup, g.power_counter, g.eaten_ghosts)
+
+    check_collisions_width_ghosts(center_x, center_y, player_circle, red_ghost, blue_ghost, orange_ghost, pink_ghost)
+
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:

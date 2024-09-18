@@ -29,6 +29,7 @@ turns_allowed = [False, False, False, False]
 player_speed = 2
 score = 0
 lives = 3
+p_moving = False
 
 player_images = []
 for i in range(1, 5):
@@ -51,6 +52,8 @@ ghosts_direction = [2, 2, 2, 2]
 ghosts_dead = [False, False, False, False]
 ghosts_box = [True, True, True, True]
 ghost_speed = 2
+gh_moving = [False, False, False, False]
+gh_stop_timer = [0, 0, 0, 0]
 
 ghosts_images = []
 for i in range(0, 6):
@@ -65,7 +68,7 @@ for i in range(0, 6):
 powerup = False
 power_counter = 0
 eaten_ghosts = [False, False, False, False]
-moving = False
+startup_counter = 0
 
 he_sees_you = [0, 0, 0, 0]
 

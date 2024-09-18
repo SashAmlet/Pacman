@@ -10,7 +10,11 @@ class Ghost:
           self.id = id
           self.coords = coords
           self.center = [coords[0] + g.pixel_w // 2 + 1, coords[1] + g.pixel_h // 2 + 1]
-          self.speed = speed
+          if g.powerup:
+               self.speed = speed // 2
+          else:
+               self.speed = speed
+          # print(self.speed)
           self.img = img
           self.direction = direction
           self.dead = dead
@@ -18,7 +22,16 @@ class Ghost:
           self.turns, self.in_box = self.check_collisions()
           self.rect = self.draw()
 
-          self.move()
+          if self.dead and not self.in_box:
+               self.move_chaser()
+          elif self.dead and self.in_box:
+               g.ghosts_box[self.id] = True
+               g.ghosts_dead[self.id] = False
+               g.gh_moving[self.id] = False
+               g.gh_stop_timer[self.id] = 3*60
+               g.eaten_ghosts[self.id] = True
+          else:
+               self.move()
 
      def draw(self):
           #print(g.powerup)
@@ -29,7 +42,7 @@ class Ghost:
           else: # dead
                g.screen.blit(g.ghosts_images[5], (self.coords[0], self.coords[1]))
 
-          ghost_rect = pygame.rect.Rect((self.center[0] - 18, self.center[1] - 18), (36, 36))
+          ghost_rect = pygame.rect.Rect((self.coords[0], self.coords[1]), (g.pixel_w, g.pixel_h))
           return ghost_rect
                
      def draw_path(self):
@@ -170,8 +183,20 @@ class Ghost:
 
           # Coordinates of the center of the ghost and the player
           maze_g_coords = (self.center[0]//g.pixel_h, self.center[1]//g.pixel_w)
-          maze_p_coords = ((g.player_coords[0] + g.pixel_h // 2 + 1)//g.pixel_h, (g.player_coords[1] + g.pixel_w // 2 + 1)//g.pixel_w)
+          maze_p_coords = (0, 0)
           maze_r_coords = (0, 0)
+
+          # If the ghost died, the center of the the player will be its spawn point.
+          if self.dead:
+               initial_ghosts_coords = [
+                    [(g.ROWS // 2), (g.COLS // 2)],
+                    [(g.ROWS // 2-1), (g.COLS // 2)],
+                    [(g.ROWS // 2), (g.COLS // 2-1)],
+                    [(g.ROWS // 2-1), (g.COLS // 2-1)]
+                    ]
+               maze_p_coords = (initial_ghosts_coords[self.id][0], initial_ghosts_coords[self.id][1])
+          else:
+               maze_p_coords = ((g.player_coords[0] + g.pixel_h // 2 + 1)//g.pixel_h, (g.player_coords[1] + g.pixel_w // 2 + 1)//g.pixel_w)
 
           x, y = g.COLS-maze_p_coords[0]-1, g.ROWS-maze_p_coords[1]-1
           if is_valid_move(x, y):
@@ -209,20 +234,21 @@ class Ghost:
                     g.ghosts_direction[self.id] = 3
 
 
-          if g.moving == True:
+          if g.gh_moving[self.id] == True:
                # print('Direction: ', g.ghosts_direction[self.id])
                # print('Allowed turns:', self.turns)
                if not self.turns[g.ghosts_direction[self.id]]: # If it is not possible to travel in this direction, then we choose a new permitted direction
                     g.ghosts_direction[self.id] = self.random_true_index()
                     
+                    
                if g.ghosts_direction[self.id] == 0:
-                    g.ghosts_coords[self.id][0] += g.ghost_speed
+                    g.ghosts_coords[self.id][0] += self.speed
                elif g.ghosts_direction[self.id] == 1:
-                    g.ghosts_coords[self.id][0] -= g.ghost_speed
+                    g.ghosts_coords[self.id][0] -= self.speed
                elif g.ghosts_direction[self.id] == 2:
-                    g.ghosts_coords[self.id][1] -= g.ghost_speed
+                    g.ghosts_coords[self.id][1] -= self.speed
                elif g.ghosts_direction[self.id] == 3:
-                    g.ghosts_coords[self.id][1] += g.ghost_speed
+                    g.ghosts_coords[self.id][1] += self.speed
 
 
      
@@ -230,7 +256,6 @@ class Ghost:
 
           pixel_X_center = g.pixel_w // 2
           pixel_Y_center = g.pixel_h // 2
-          
 
           def decision(probability):
                if 1 <= random.randint(1, 100) <= probability:
@@ -240,6 +265,8 @@ class Ghost:
 
           # I change direction only if the ghost is in the middle of the cell and 
           # either there is a wall in front of it or a decision is made to turn.
+          print(self.id)
+          print(g.ghosts_direction)
           if (pixel_X_center - 3 <= self.center[0] % g.pixel_w <= pixel_X_center + 3) and \
                (pixel_Y_center - 3 <= self.center[1] % g.pixel_h <= pixel_Y_center + 3) and \
                     (self.turns[g.ghosts_direction[self.id]] == False or decision(10)):
@@ -247,16 +274,15 @@ class Ghost:
                g.ghosts_direction[self.id] = self.random_true_index()
                
 
-
-          if g.moving == True:
+          if g.gh_moving[self.id] == True:
                if g.ghosts_direction[self.id] == 0:
-                    g.ghosts_coords[self.id][0] += g.ghost_speed
+                    g.ghosts_coords[self.id][0] += self.speed
                elif g.ghosts_direction[self.id] == 1:
-                    g.ghosts_coords[self.id][0] -= g.ghost_speed
+                    g.ghosts_coords[self.id][0] -= self.speed
                elif g.ghosts_direction[self.id] == 2:
-                    g.ghosts_coords[self.id][1] -= g.ghost_speed
+                    g.ghosts_coords[self.id][1] -= self.speed
                elif g.ghosts_direction[self.id] == 3:
-                    g.ghosts_coords[self.id][1] += g.ghost_speed
+                    g.ghosts_coords[self.id][1] += self.speed
 
      
      def move(self):

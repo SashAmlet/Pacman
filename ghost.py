@@ -314,11 +314,11 @@ class Ghost:
                see = False
 
           if see:
-               g.he_sees_you = 3*60
-          elif g.he_sees_you > 0:
-               g.he_sees_you -= 1
+               g.he_sees_you[self.id] = 3*60
+          elif g.he_sees_you[self.id] > 0:
+               g.he_sees_you[self.id] -= 1
 
-          if g.he_sees_you == 0:
+          if g.he_sees_you[self.id] == 0:
                self.move_patrol()
           else:
                self.move_chaser()

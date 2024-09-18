@@ -68,4 +68,4 @@ power_counter = 0
 eaten_ghosts = [False, False, False, False]
 moving = False
 
-he_sees_you = 0
+he_sees_you = [0, 0, 0, 0]

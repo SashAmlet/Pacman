@@ -33,7 +33,7 @@ def draw_miscellaneous():
     score_text = g.font.render(f'Score: {g.score}', True, 'white')
     g.screen.blit(score_text, (10, g.HEIGHT - 35))
 
-    chaser_text = g.font.render(f'{g.he_sees_you//60}', True, 'white')
+    chaser_text = g.font.render(f'0: {g.he_sees_you[0]//60}, 1: {g.he_sees_you[1]//60}, 2: {g.he_sees_you[2]//60}, 3: {g.he_sees_you[3]//60}', True, 'white')
     g.screen.blit(chaser_text, (200, g.HEIGHT - 35))
 
     if g.powerup:
@@ -171,9 +171,9 @@ while run:
     draw_board(g.level)
     draw_player(g.player_coords)
     red_ghost   = Ghost(0, g.ghosts_coords[0], g.ghosts_targets[0], g.ghost_speed, g.ghosts_images[0], g.ghosts_direction[0], g.ghosts_dead[0], g.ghosts_box[0])
-    # blue_ghost  = Ghost(1, g.ghosts_coords[1], g.ghosts_targets[1], g.ghost_speed, g.ghosts_images[1], g.ghosts_direction[1], g.ghosts_dead[1], g.ghosts_box[1])
-    # orange_ghost= Ghost(2, g.ghosts_coords[2], g.ghosts_targets[2], g.ghost_speed, g.ghosts_images[2], g.ghosts_direction[2], g.ghosts_dead[2], g.ghosts_box[2])
-    # pink_ghost  = Ghost(3, g.ghosts_coords[3], g.ghosts_targets[3], g.ghost_speed, g.ghosts_images[3], g.ghosts_direction[3], g.ghosts_dead[3], g.ghosts_box[3])
+    blue_ghost  = Ghost(1, g.ghosts_coords[1], g.ghosts_targets[1], g.ghost_speed, g.ghosts_images[1], g.ghosts_direction[1], g.ghosts_dead[1], g.ghosts_box[1])
+    orange_ghost= Ghost(2, g.ghosts_coords[2], g.ghosts_targets[2], g.ghost_speed, g.ghosts_images[2], g.ghosts_direction[2], g.ghosts_dead[2], g.ghosts_box[2])
+    pink_ghost  = Ghost(3, g.ghosts_coords[3], g.ghosts_targets[3], g.ghost_speed, g.ghosts_images[3], g.ghosts_direction[3], g.ghosts_dead[3], g.ghosts_box[3])
     draw_miscellaneous()
 
     center_x = g.player_coords[0] + g.pixel_w // 2 + 1

@@ -171,7 +171,6 @@ def check_score(centerx, centery, lvl, score, power, power_count, eaten_ghost):
 
 ### SETTINGS ###
 counter = 0
-fps = 60
 flicker = False
 timer = pygame.time.Clock()
 run = True
@@ -179,7 +178,7 @@ run = True
 
 ### MAIN ###
 while run:
-    timer.tick(fps)
+    timer.tick(g.fps)
     # Timer part
     if counter < 19:
         counter += 1
@@ -195,9 +194,9 @@ while run:
         g.p_moving = True
         # g.gh_moving = [True, True, True, True]
     
-    if g.powerup and g.power_counter < 600:
+    if g.powerup and g.power_counter < g.powerip_duration*g.fps:
         g.power_counter += 1
-    elif g.powerup and g.power_counter >= 600:
+    elif g.powerup and g.power_counter >= g.powerip_duration*g.fps:
         g.powerup = False
         g.power_counter = 0
         g.eaten_ghosts = [False, False, False, False]

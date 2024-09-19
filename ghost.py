@@ -40,7 +40,14 @@ class Ghost:
           if not self.dead and ((not g.powerup) or (g.powerup and g.eaten_ghosts[self.id])):
                g.screen.blit(self.img, (self.coords[0], self.coords[1]))
           elif g.powerup and not self.dead and not g.eaten_ghosts[self.id]: # powerup
-               g.screen.blit(g.ghosts_images[4], (self.coords[0], self.coords[1]))
+
+               if g.power_counter >= (g.powerip_duration-3)*g.fps:
+                    if g.power_counter % 5 != 0:
+                         g.screen.blit(g.ghosts_images[4], (self.coords[0], self.coords[1]))
+               else:
+                    g.screen.blit(g.ghosts_images[4], (self.coords[0], self.coords[1]))
+
+
           else: # dead
                g.screen.blit(g.ghosts_images[5], (self.coords[0], self.coords[1]))
 

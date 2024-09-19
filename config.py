@@ -8,6 +8,7 @@ HEIGHT = 750
 
 ROWS = COLS = 20
 
+fps = 60
 
 pixel_w = (WIDTH // COLS)
 pixel_h = ((HEIGHT - 50) // ROWS)
@@ -32,7 +33,7 @@ player_coords = [0, pixel_h] # x, y
 turns_allowed = [False, False, False, False]
 player_speed = 2
 score = 0
-lives = 50
+lives = 3
 p_moving = False
 
 player_images = []
@@ -76,12 +77,13 @@ for i in range(0, 6):
 
 powerup = False
 power_counter = 0
+powerip_duration = 10
 eaten_ghosts = [False, False, False, False]
 startup_counter = 0
 
 he_sees_you = [0, 0, 0, 0]
 
-show_path = True
+show_path = False
 
 
 # takes the coordinate of the object, returns its position on the map.

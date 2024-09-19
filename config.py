@@ -42,12 +42,17 @@ for i in range(1, 5):
 ### GHOSTS ###
 
 # red, blue, orange, pink
-ghosts_coords = [
-    [(ROWS // 2)*pixel_w, (COLS // 2)*pixel_h],
-    [(ROWS // 2-1)*pixel_w, (COLS // 2)*pixel_h],
-    [(ROWS // 2)*pixel_w, (COLS // 2-1)*pixel_h],
-    [(ROWS // 2-1)*pixel_w, (COLS // 2-1)*pixel_h]
-]
+def init_ghosts_coords():
+    ghosts_coords = [
+        [(ROWS // 2)*pixel_w, (COLS // 2)*pixel_h],
+        [(ROWS // 2-1)*pixel_w, (COLS // 2)*pixel_h],
+        [(ROWS // 2)*pixel_w, (COLS // 2-1)*pixel_h],
+        [(ROWS // 2-1)*pixel_w, (COLS // 2-1)*pixel_h]
+    ]
+    return ghosts_coords
+
+ghosts_coords = init_ghosts_coords()
+
 ghosts_direction = [2, 2, 2, 2]
 ghosts_dead = [False, False, False, False]
 ghosts_box = [True, True, True, True]
@@ -73,3 +78,29 @@ startup_counter = 0
 he_sees_you = [0, 0, 0, 0]
 
 show_path = True
+
+
+# takes the coordinate of the object, returns its position on the map.
+# including the left and upper borders.
+def coords_to_maze(coords):
+    return coords[0]//pixel_h, coords[1]//pixel_w
+
+def in_the_middle_of_the_cell(coords, by_X = False, by_Y = False, fluff = 3):
+    center_x = coords[0] + pixel_w // 2 + 1
+    center_y = coords[1] + pixel_h // 2 + 1
+    
+    pixel_X_center = pixel_w // 2
+    pixel_Y_center = pixel_h // 2
+
+    if by_X and by_Y:
+        response =  (pixel_X_center - fluff <= center_x % pixel_w <= pixel_X_center + fluff) and \
+                    (pixel_Y_center - fluff <= center_y % pixel_h <= pixel_Y_center + fluff)
+    elif by_X:
+        response =  (pixel_X_center - fluff <= center_x % pixel_w <= pixel_X_center + fluff)
+    elif by_Y:
+        response =  (pixel_Y_center - fluff <= center_y % pixel_h <= pixel_Y_center + fluff)
+    else:
+        return None
+
+    
+    return response

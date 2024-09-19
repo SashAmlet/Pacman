@@ -10,28 +10,30 @@ class Ghost:
           self.id = id
           self.coords = coords
           self.center = [coords[0] + g.pixel_w // 2 + 1, coords[1] + g.pixel_h // 2 + 1]
-          if g.powerup:
-               self.speed = speed // 2
-          else:
-               self.speed = speed
-          # print(self.speed)
           self.img = img
           self.direction = direction
           self.dead = dead
           self.in_box = box   
+
+          if g.powerup and not g.eaten_ghosts[self.id]:
+               self.speed = speed // 2
+          else:
+               self.speed = speed
+
           self.turns, self.in_box = self.check_collisions()
           self.rect = self.draw()
 
-          if self.dead and not self.in_box:
-               self.move_chaser()
+          if not self.dead:
+               self.move()
           elif self.dead and self.in_box:
                g.ghosts_box[self.id] = True
                g.ghosts_dead[self.id] = False
                g.gh_moving[self.id] = False
                g.gh_stop_timer[self.id] = 3*60
                g.eaten_ghosts[self.id] = True
+               g.ghosts_direction[self.id] = 2
           else:
-               self.move()
+               g.ghosts_coords[self.id] = g.init_ghosts_coords()[self.id]
 
      def draw(self):
           #print(g.powerup)
@@ -88,7 +90,7 @@ class Ghost:
                # If I am already moving Up or Down 
                if g.direction == 2 or g.direction == 3:
                     # Can I continue moving in the same direction?
-                    if pixel_X_center - 3 <= centerx % g.pixel_w <= pixel_X_center + 3: # if the player is in the center of the square relative to the X axis
+                    if g.in_the_middle_of_the_cell(self.coords, by_X=True): # if the player is in the center of the square relative to the X axis
                          index_value = g.level[(centery + g.pixel_h//2) // g.pixel_h][centerx // g.pixel_w]
                          if index_value not in boarders  or index_value == 4 and additional_condition:
                               turns[3] = True
@@ -97,7 +99,7 @@ class Ghost:
                               turns[2] = True
 
                     # Can I turn Left or Right?
-                    if pixel_Y_center - 3 <= centery % g.pixel_h <= pixel_Y_center + 3: # if the player is in the center of the square relative to the Y axis
+                    if g.in_the_middle_of_the_cell(self.coords, by_Y=True): # if the player is in the center of the square relative to the Y axis
                          index_value = g.level[centery // g.pixel_h][(centerx - g.pixel_w//2) // g.pixel_w]
                          if index_value not in boarders or index_value == 4 and additional_condition:
                               turns[1] = True
@@ -109,7 +111,7 @@ class Ghost:
                # If I am already moving Left or Right 
                if g.direction == 1 or g.direction == 0:
                     # Can I continue moving in the same direction?
-                    if pixel_Y_center - 3 <= centery % g.pixel_h <= pixel_Y_center + 3: # if the player is in the center of the square relative to the Y axis
+                    if g.in_the_middle_of_the_cell(self.coords, by_Y=True): # if the player is in the center of the square relative to the Y axis
                          index_value = g.level[centery // g.pixel_h][(centerx + g.pixel_w//2) // g.pixel_w]
                          if index_value not in boarders or index_value == 4 and additional_condition:
                               turns[0] = True
@@ -118,7 +120,7 @@ class Ghost:
                               turns[1] = True
 
                     # Can I turn Up or Down?
-                    if pixel_X_center - 3 <= centerx % g.pixel_w <= pixel_X_center + 3: # if the player is in the center of the square relative to the X axis
+                    if g.in_the_middle_of_the_cell(self.coords, by_X=True): # if the player is in the center of the square relative to the X axis
                          index_value = g.level[(centery - g.pixel_h//2) // g.pixel_h][centerx // g.pixel_w]
                          if index_value not in boarders or index_value == 4 and additional_condition:
                               turns[2] = True
@@ -130,11 +132,17 @@ class Ghost:
 
 
           # Is the ghost still in the box?
-          if (g.ROWS // 2 - 4)*g.pixel_h < self.coords[0] < (g.ROWS // 2 - 1)*g.pixel_h and \
-               (g.COLS // 2 - 2)*g.pixel_w < self.coords[1] < (g.COLS // 2 + 1)*g.pixel_w:
+
+          maze_coords = g.coords_to_maze(self.coords)
+          center_row = g.ROWS // 2
+          center_col = g.COLS // 2
+          if maze_coords[0] in range(center_row-1, center_row+1) and \
+               maze_coords[1] in range(center_col-2, center_col+1):
                g.ghosts_box[self.id] = True
           else:
                g.ghosts_box[self.id] = False
+
+          
 
 
           return turns, g.ghosts_box[self.id]
@@ -187,16 +195,8 @@ class Ghost:
           maze_r_coords = (0, 0)
 
           # If the ghost died, the center of the the player will be its spawn point.
-          if self.dead:
-               initial_ghosts_coords = [
-                    [(g.ROWS // 2), (g.COLS // 2)],
-                    [(g.ROWS // 2-1), (g.COLS // 2)],
-                    [(g.ROWS // 2), (g.COLS // 2-1)],
-                    [(g.ROWS // 2-1), (g.COLS // 2-1)]
-                    ]
-               maze_p_coords = (initial_ghosts_coords[self.id][0], initial_ghosts_coords[self.id][1])
-          else:
-               maze_p_coords = ((g.player_coords[0] + g.pixel_h // 2 + 1)//g.pixel_h, (g.player_coords[1] + g.pixel_w // 2 + 1)//g.pixel_w)
+          
+          maze_p_coords = ((g.player_coords[0] + g.pixel_h // 2 + 1)//g.pixel_h, (g.player_coords[1] + g.pixel_w // 2 + 1)//g.pixel_w)
 
           x, y = g.COLS-maze_p_coords[0]-1, g.ROWS-maze_p_coords[1]-1
           if is_valid_move(x, y):
@@ -209,7 +209,7 @@ class Ghost:
                          maze_r_coords = (nx, ny)
                          break
 
-          if g.powerup:
+          if g.powerup and not g.eaten_ghosts[self.id]:
                self.path = bfs(maze_g_coords, maze_r_coords)
           else:
                self.path = bfs(maze_g_coords, maze_p_coords)
@@ -254,9 +254,6 @@ class Ghost:
      
      def move_patrol(self):
 
-          pixel_X_center = g.pixel_w // 2
-          pixel_Y_center = g.pixel_h // 2
-
           def decision(probability):
                if 1 <= random.randint(1, 100) <= probability:
                     return True
@@ -267,9 +264,13 @@ class Ghost:
           # either there is a wall in front of it or a decision is made to turn.
           # print(self.id)
           # print(g.ghosts_direction)
-          if (pixel_X_center - 3 <= self.center[0] % g.pixel_w <= pixel_X_center + 3) and \
-               (pixel_Y_center - 3 <= self.center[1] % g.pixel_h <= pixel_Y_center + 3) and \
-                    (self.turns[g.ghosts_direction[self.id]] == False or decision(10)):
+          if self.in_box:
+               decision_ = False
+          else:
+               decision_ = decision(10)
+
+          if g.in_the_middle_of_the_cell(self.coords, by_X=True, by_Y=True) and \
+                    (self.turns[g.ghosts_direction[self.id]] == False or decision_):
 
                g.ghosts_direction[self.id] = self.random_true_index()
                
@@ -287,7 +288,6 @@ class Ghost:
      
      def move(self):
           def bresenham_line(coords1, coords2):
-               """Функция для построения линии по алгоритму Брезенхэма между точками (x1, y1) и (x2, y2)."""
                x1 = coords1[0]
                y1 = coords1[1]
                x2 = coords2[0]
@@ -314,9 +314,7 @@ class Ghost:
                
                return points
 
-          def can_see(matrix, coords1, coords2):
-               """Проверяет, можно ли увидеть объект на координатах (x1, y1) с позиции (x2, y2) в матрице."""
-               
+          def can_see(matrix, coords1, coords2):               
                x1 = coords1[0]
                y1 = coords1[1]
                x2 = coords2[0]
@@ -331,8 +329,8 @@ class Ghost:
                
                return True  # Если нет стен на пути, объект виден
           
-          maze_g_coords = (self.center[0]//g.pixel_h, self.center[1]//g.pixel_w)
-          maze_p_coords = ((g.player_coords[0] + g.pixel_h // 2 + 1)//g.pixel_h, (g.player_coords[1] + g.pixel_w // 2 + 1)//g.pixel_w)
+          maze_g_coords = (g.coords_to_maze(self.coords))
+          maze_p_coords = (g.coords_to_maze(g.player_coords))
           
           if 0 <= maze_p_coords[0] < g.ROWS and 0 <= maze_p_coords[1] < g.COLS:
                see = can_see(g.level, maze_g_coords, maze_p_coords)

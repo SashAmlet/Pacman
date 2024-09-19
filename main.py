@@ -140,12 +140,7 @@ def check_collisions_width_ghosts(centerx, centery, player_circle, red_ghost, bl
                 g.gh_moving = [False, False, False, False]   
 
                 # Ghosts Reboot
-                g.ghosts_coords = [
-                    [(g.ROWS // 2)*g.pixel_w, (g.COLS // 2)*g.pixel_h],
-                    [(g.ROWS // 2-1)*g.pixel_w, (g.COLS // 2)*g.pixel_h],
-                    [(g.ROWS // 2)*g.pixel_w, (g.COLS // 2-1)*g.pixel_h],
-                    [(g.ROWS // 2-1)*g.pixel_w, (g.COLS // 2-1)*g.pixel_h]
-                ]
+                g.ghosts_coords = g.init_ghosts_coords()
                 g.ghosts_direction = [2, 2, 2, 2]
                 g.ghosts_dead = [False, False, False, False]
                 g.ghosts_box = [True, True, True, True]

@@ -189,14 +189,10 @@ class Ghost:
                
                return None  # If there is no way
 
-          # Coordinates of the center of the ghost and the player
-          maze_g_coords = (self.center[0]//g.pixel_h, self.center[1]//g.pixel_w)
-          maze_p_coords = (0, 0)
+          # The position on the map of the player, the ghost and the point that is farthest from the player. 
+          maze_p_coords = (g.coords_to_maze(g.player_coords))
+          maze_g_coords = (g.coords_to_maze(self.coords))
           maze_r_coords = (0, 0)
-
-          # If the ghost died, the center of the the player will be its spawn point.
-          
-          maze_p_coords = ((g.player_coords[0] + g.pixel_h // 2 + 1)//g.pixel_h, (g.player_coords[1] + g.pixel_w // 2 + 1)//g.pixel_w)
 
           x, y = g.COLS-maze_p_coords[0]-1, g.ROWS-maze_p_coords[1]-1
           if is_valid_move(x, y):
@@ -214,13 +210,9 @@ class Ghost:
           else:
                self.path = bfs(maze_g_coords, maze_p_coords)
 
-          pixel_X_center = g.pixel_w // 2
-          pixel_Y_center = g.pixel_h // 2
-
           # I change direction only if there is a path and a ghost in the middle of the cell
           if self.path is not None and len(self.path) > 1 and \
-               (pixel_X_center - 3 <= self.center[0] % g.pixel_w <= pixel_X_center + 3) and \
-                    (pixel_Y_center - 3 <= self.center[1] % g.pixel_h <= pixel_Y_center + 3):
+               g.in_the_middle_of_the_cell(self.coords, by_X=True, by_Y=True):
                
                # R, L, U, D 
                direction = (self.path[1][0] - g.ghosts_coords[self.id][0]//g.pixel_w, self.path[1][1] - g.ghosts_coords[self.id][1]//g.pixel_h)
@@ -235,8 +227,6 @@ class Ghost:
 
 
           if g.gh_moving[self.id] == True:
-               # print('Direction: ', g.ghosts_direction[self.id])
-               # print('Allowed turns:', self.turns)
                if not self.turns[g.ghosts_direction[self.id]]: # If it is not possible to travel in this direction, then we choose a new permitted direction
                     g.ghosts_direction[self.id] = self.random_true_index()
                     
@@ -323,14 +313,15 @@ class Ghost:
                line_of_sight = bresenham_line(coords1, coords2)
                
                for (x, y) in line_of_sight:
-                    # Проверяем, является ли клетка стеной
+                    # Checking if a cell is a wall
                     if matrix[y][x] == 1:
-                         return False  # Видимость блокирована стеной
+                         return False  # Visibility is blocked by a wall
                
-               return True  # Если нет стен на пути, объект виден
+               return True  # If there are no walls in the way, the object is visible
           
           maze_g_coords = (g.coords_to_maze(self.coords))
           maze_p_coords = (g.coords_to_maze(g.player_coords))
+          # print(maze_p_coords)
           
           if 0 <= maze_p_coords[0] < g.ROWS and 0 <= maze_p_coords[1] < g.COLS:
                see = can_see(g.level, maze_g_coords, maze_p_coords)

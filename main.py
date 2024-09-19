@@ -124,12 +124,21 @@ def check_collisions_width_ghosts(centerx, centery, player_circle, red_ghost, bl
                   player_circle.colliderect(orange_ghost.rect) and not orange_ghost.dead, 
                   player_circle.colliderect(pink_ghost.rect) and not pink_ghost.dead]
     
-    if collisions.count(1) > 0:
-        if not g.powerup:
-            if g.lives > -1:
+    for i, col  in enumerate(collisions):
+        if col:
+            if g.powerup and not g.eaten_ghosts[i]:
+                g.ghosts_dead[i] = True
+                g.he_sees_you[i] = 0
+                g.score += 50
+            elif g.lives > -1:
+                # General Reboot
                 g.lives -= 1                
                 g.p_moving = False
                 g.startup_counter = 0
+                g.he_sees_you = [0, 0, 0, 0]
+                g.powerup = False
+                g.power_counter = 0
+                g.eaten_ghosts = [False, False, False, False]
 
                 # Player Reboot
                 g.direction = 0
@@ -144,13 +153,10 @@ def check_collisions_width_ghosts(centerx, centery, player_circle, red_ghost, bl
                 g.ghosts_direction = [2, 2, 2, 2]
                 g.ghosts_dead = [False, False, False, False]
                 g.ghosts_box = [True, True, True, True]
+
+                
             else:
                 pygame.quit()
-        else:
-            # g.ghosts_dead = collisions
-            for i, col  in enumerate(collisions):
-                if not g.ghosts_dead[i] and col:
-                    g.ghosts_dead[i] = True
 
 def move_player(coords):
     # R, L, U, D

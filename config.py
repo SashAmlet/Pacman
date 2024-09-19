@@ -83,7 +83,10 @@ show_path = True
 # takes the coordinate of the object, returns its position on the map.
 # including the left and upper borders.
 def coords_to_maze(coords):
-    return coords[0]//pixel_h, coords[1]//pixel_w
+    center_x = coords[0] + pixel_w // 2 + 1
+    center_y = coords[1] + pixel_h // 2 + 1
+
+    return center_x//pixel_h, center_y//pixel_w
 
 def in_the_middle_of_the_cell(coords, by_X = False, by_Y = False, fluff = 3):
     center_x = coords[0] + pixel_w // 2 + 1

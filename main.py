@@ -22,6 +22,9 @@ def draw_player(coords):
 
     center_x = coords[0] + g.pixel_w // 2 + 1
     center_y = coords[1] + g.pixel_h // 2 + 1
+    
+    player_circle = pygame.draw.circle(g.screen, 'black', (center_x, center_y), g.pixel_w//2, 2)
+
     # 0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
     if g.direction == 0:
         g.screen.blit(g.player_images[counter // 5], (x, y))
@@ -32,7 +35,6 @@ def draw_player(coords):
     elif g.direction == 3:
         g.screen.blit(pygame.transform.rotate(g.player_images[counter // 5], 270), (x, y))
     
-    player_circle = pygame.draw.circle(g.screen, 'purple', (center_x, center_y), g.pixel_w//2, 2)
     return player_circle
 
     

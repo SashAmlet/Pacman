@@ -130,7 +130,7 @@ class Ghost:
 
 
           # Is the ghost still in the box?
-          if (g.ROWS // 2 - 2)*g.pixel_h < self.coords[0] < (g.ROWS // 2 + 1)*g.pixel_h and \
+          if (g.ROWS // 2 - 4)*g.pixel_h < self.coords[0] < (g.ROWS // 2 - 1)*g.pixel_h and \
                (g.COLS // 2 - 2)*g.pixel_w < self.coords[1] < (g.COLS // 2 + 1)*g.pixel_w:
                g.ghosts_box[self.id] = True
           else:
@@ -265,8 +265,8 @@ class Ghost:
 
           # I change direction only if the ghost is in the middle of the cell and 
           # either there is a wall in front of it or a decision is made to turn.
-          print(self.id)
-          print(g.ghosts_direction)
+          # print(self.id)
+          # print(g.ghosts_direction)
           if (pixel_X_center - 3 <= self.center[0] % g.pixel_w <= pixel_X_center + 3) and \
                (pixel_Y_center - 3 <= self.center[1] % g.pixel_h <= pixel_Y_center + 3) and \
                     (self.turns[g.ghosts_direction[self.id]] == False or decision(10)):

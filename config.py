@@ -15,7 +15,11 @@ pixel_h = ((HEIGHT - 50) // ROWS)
 screen = pygame.display.set_mode([WIDTH, HEIGHT])
 font = pygame.font.Font('freesansbold.ttf', 20)
 
-level = board.get_maze(COLS, ROWS)
+def update_level():
+    level = board.get_maze(COLS, ROWS)
+    return level
+
+level = update_level()
 print(level)
 color = 'blue'
 
@@ -28,7 +32,7 @@ player_coords = [0, pixel_h] # x, y
 turns_allowed = [False, False, False, False]
 player_speed = 2
 score = 0
-lives = 3
+lives = 50
 p_moving = False
 
 player_images = []
@@ -107,3 +111,44 @@ def in_the_middle_of_the_cell(coords, by_X = False, by_Y = False, fluff = 3):
 
     
     return response
+
+def reboot(full = False):
+    global p_moving, startup_counter, he_sees_you, powerup, power_counter, \
+            eaten_ghosts, direction, direction_command, player_coords, turns_allowed, \
+            gh_moving, ghosts_coords, ghosts_direction, ghosts_dead, ghosts_box, pixel_w, pixel_h, ghosts_images, player_images
+    
+    if full:
+        pixel_w = (WIDTH // COLS)
+        pixel_h = ((HEIGHT - 50) // ROWS)
+        ghosts_images = []
+        player_images = []
+
+        for i in range(0, 6):
+            image_path = f'assets/ghost_images/{i}.png'
+            scaled_image = pygame.transform.scale(pygame.image.load(image_path), (pixel_w, pixel_h))
+            ghosts_images.append(scaled_image)
+            
+        for i in range(1, 5):
+            image_path = f'assets/player_images/{i}.png'
+            player_images.append(pygame.transform.scale(pygame.image.load(image_path), (pixel_w, pixel_h)))
+
+    # General Reboot           
+    p_moving = False
+    startup_counter = 0
+    he_sees_you = [0, 0, 0, 0]
+    powerup = False
+    power_counter = 0
+    eaten_ghosts = [False, False, False, False]
+
+    # Player Reboot
+    direction = 0
+    direction_command = 0
+    player_coords = [0, pixel_h]
+    turns_allowed = [False, False, False, False]        
+    gh_moving = [False, False, False, False]   
+
+    # Ghosts Reboot
+    ghosts_coords = init_ghosts_coords()
+    ghosts_direction = [2, 2, 2, 2]
+    ghosts_dead = [False, False, False, False]
+    ghosts_box = [True, True, True, True]

@@ -37,7 +37,12 @@ def draw_player(coords):
     
     return player_circle
 
-    
+def next_level():
+    if not any(set(row) & {2, 3} for row in g.level):
+        g.ROWS += 4
+        g.COLS += 4
+        g.reboot(full=True)
+        g.level = g.update_level()
 
 def draw_miscellaneous():
     score_text = g.font.render(f'Score: {g.score}', True, 'white')
@@ -118,6 +123,7 @@ def check_collisions(centerx, centery):
     return turns
 
 def check_collisions_width_ghosts(centerx, centery, player_circle, red_ghost, blue_ghost, orange_ghost, pink_ghost):
+    global run
 
     collisions = [player_circle.colliderect(red_ghost.rect) and not red_ghost.dead, 
                   player_circle.colliderect(blue_ghost.rect) and not blue_ghost.dead, 
@@ -130,33 +136,11 @@ def check_collisions_width_ghosts(centerx, centery, player_circle, red_ghost, bl
                 g.ghosts_dead[i] = True
                 g.he_sees_you[i] = 0
                 g.score += 50
-            elif g.lives > -1:
-                # General Reboot
-                g.lives -= 1                
-                g.p_moving = False
-                g.startup_counter = 0
-                g.he_sees_you = [0, 0, 0, 0]
-                g.powerup = False
-                g.power_counter = 0
-                g.eaten_ghosts = [False, False, False, False]
-
-                # Player Reboot
-                g.direction = 0
-                g.direction_command = 0
-                g.player_coords = [0, g.pixel_h]
-                # R, L, U, D
-                g.turns_allowed = [False, False, False, False]        
-                g.gh_moving = [False, False, False, False]   
-
-                # Ghosts Reboot
-                g.ghosts_coords = g.init_ghosts_coords()
-                g.ghosts_direction = [2, 2, 2, 2]
-                g.ghosts_dead = [False, False, False, False]
-                g.ghosts_box = [True, True, True, True]
-
-                
+            elif g.lives > 0:
+                g.lives -= 1     
+                g.reboot()                
             else:
-                pygame.quit()
+                run = False
 
 def move_player(coords):
     # R, L, U, D
@@ -227,6 +211,7 @@ while run:
     # print(g.gh_moving)
     ##
     g.screen.fill('black')
+    next_level()
     draw_board(g.level)
     player_circle = draw_player(g.player_coords)
     
